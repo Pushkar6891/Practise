@@ -1,0 +1,31 @@
+1. If a client is requesting for a specific format like XML and Server is returning it without any issue. 
+In Future the Client wants a JSON response, how to handle it without making a code change dynamically?
+2. What is HATEOAS?
+- What are the other resources available
+3. What is the difference between Spring 4 vs Spring 5 vs Spring Boot?
+Spring Boot
+- Spring Boot reduces the time to develop an application
+- Embedded Tomcat
+- No XML configuration
+- Easy to launch
+- Easy to customize
+- Easy to manage
+- create a stand-alone production grade application that you can just run
+- opinionated
+- Automatic configuration for Spring Functionality
+- Metrics, Health Checks
+Spring Framework
+- Remove Boiler Plate Code
+4. What are the spring Features version wise?
+Spring 1:
+Spring 2:
+Spring 3:
+Spring 4:
+Spring 5:
+1. JDK Baseline update for Spring Framework 5.0 to use JDK 1.8
+2. Core Framework Revision
+3. Core Container Updates
+4. Support for Functional Programming using Kotlin
+5. Support for JUnit 5
+6. Support for JSON Binding API
+5. Reactive Stack Framework or Reactive Programming Model 

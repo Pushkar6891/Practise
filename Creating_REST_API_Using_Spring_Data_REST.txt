@@ -1,0 +1,189 @@
+1. Spring Data Rest
+2. What are Microservices?
+3. What is REST?
+4. Why REST?
+5. Spring Data REST?
+6. Creating a Spring Data REST
+7. Event Management API
+   Organizer Event Participant
+	     Venue
+8. Testing REST API using POSTMAN
+9. Paging and Sorting using Spring Data REST
+10. Customize JSON Responses
+11. Implement Query Methods or custom finder methods supported by Spring Data like : findOne, findById, findAll, findByName
+12. Customize or Add Custom Business Logics using "Custom Controller Methods"
+13. Projections and Excerpts
+14. How to configure HAL Browser for REST ful API?
+15. Secure : Authentication and Authorization a URL Level and at Java Method Level
+16. Setup: Java (JDK 8), Eclipse STS IDE , MySQL Server (5.6) + MySQL Workbench (Download+Install+Configure), Postman (Test RESTful API GET, POST, PUT, DELETE)
+===================================================
+17. To connect to MYSQL Server from MYSQL Workbench? 
+Add Server
+Hostname : 127.0.0.1
+Port     : 3306
+Username : root
+Password : root
+===================================================
+18. Monolithic Application
+Hospital Management Application -> Patient Registration, Patient Clinical, Bed Management, Claim Management
+In case of monilithic app:
+- code fix
+- deployment
+- other module dependency
+===================================================
+19. Microservices
+Patient Registration, Patient Clinical, Bed Management, Claim Management
+Characteristics:
+1. Small and Focussed Service
+2. Autonomous (Build and Deploy on its own)
+3. Communication across services happen using REST or network calls 
+4. Can you change and deploy our application without changing or impacting other services?
+5. Heterogenous (each microservice can run on different platform and different programming language)
+6. Robustness (if one component fails it should not bring down entire application, there should be graceful degrade the particular service)
+7. Scalablity (if no. of users increase it should be able to cope up with existing load)
+8. Easy to deploy ()
+9. Reusable and Replaceable
+===================================================
+20. SOA and Microservices
+Service Oriented Architecture vs Microservices
+Microservices are bettwer version of SOA
+SOA had some problems
+1. Lack of understanding on how to implement SOA
+2. Lack of Vendor Support
+3. Vendors started selling the product
+4. How to break down application into smaller components?
+===================================================
+21. What is REST?
+REST : Representational State Transfer
+Web Browser : RESTful Client
+Web Site : RESTful Provider
+Web Browser invokes using the web service using "HTTP GET" 
+Web Site provides the Video or response in 
+HTTP allows us to implement REST.
+Operations: CREATE, READ, UPDATE, DELETE (CRUD)
+===================================================
+22. RESTFul principles:
+1. Uniform Interface & Easy Access.
+Using HTTP methods/ HTTP verbs:
+GET, POST, PUT, DELETE
+Using URI / NOUNS:
+/employees
+/departments
+===================================================
+Types of URI
+1. Collection Resource URI
+2. Items Resource URI
+===================================================
+1. GET
+2. POST
+To Create an Employee use POST : /employees
+POST /employees
+{
+	name: "bharath",
+	dept: "IT"
+}
+
+3. PUT
+To Update the Employee resource use PUT /employees/1
+You need to update the complete resource.
+Use PATCH if you want to update a Partial Resource
+/PATCH /employees
+{
+	"dept":"psychology",
+}
+4. DELETE
+To delete the Object use DELETE
+/DELETE
+===================================================
+Key REST Principles
+1. Single HTTP Interface
+2. Easy to Access
+3. Multiple Representations (supported using HTTP Mime Types)
+4. HATEOAS (Hypermedia as the Engine of Application State)
+- Provide a link in the response using which client can navigate through the rest if the application
+- HATEOAS is a standard in the REST API which says "responses should include hyperlinks which allows clients to navigate through our restful application.
+- HAL (Hypermedia Text Language) is a format for sharing hyperlinks
+- HAL is an implementation of HATEOAS
+"name":"John",
+"links":{
+	"self":{
+		"href":"http://localhost:8080/employee-ap/employees/1"
+	}
+}
+===================================================
+
+23. Why REST is the best way to implement Microservices?
+1. Heterogenous (communication is done using REST, support XML,JSON and build on HTTP)
+2. Robustness
+3. Stateless (REST does not maintain the state)
+4. Scalable (as no of users increase)
+5. REST apps are easy to deploy
+6. REST apps are "Reusabale and Replaceable"
+===================================================
+24. What is Spring Data REST?
+1 Before "Spring Data REST" we use "Spring MVC" by creating Controllers, Serviec Layers, Data Access Layer
+2. Spring Data simplyfy the DAO layer . If you want to implement DAO use JPA Entity and Implement CrudRepository (save, findOne, findAll, delete, count)
+3. "Spring Data Rest" uses "Spring Data" where all Database Entity is exposed as a "RESTful Resource", we get HAL and HATEOAS suppport
+Eg: Create a JPA Entity or DTO Employee, Create a DAO like 
+public interface EmployeeRepository extends CrudRepository<Employee, Long>{}
+htps://localhost:8080/employee-api
+===================================================
+Create an Entity "Employee" and Expose it out as a RESTful entity using 4 steps:
+1. Create a Employee table in the Database
+2. Create a Spring Boot Project
+3. Create a DTO/Domain Model/Entity
+4. Create a Repository interface
+5. Create a DataSource in the application.properties
+===================================================
+Spring Boot 2.x changes
+Change 1.
+Old:
+Employee employee = findOne(employeeId)
+New: 
+Optional<Employee> employeeOptional = findById(employeeId) (Reactive Programming)
+if(employeeOptional.isPresent()){
+	Employee employee = employeeOptional.get();
+}
+
+Change 2. 
+Old:
+@Id
+@GeneratedValue(strategy=GenerationType.AUTO) => hibernate sequence does not exist
+private Long Id;
+New:
+@Id
+@GeneratedValue(strategy=GenerationType.IDENTITY)
+private Long Id;
+===================================================
+1. Create an Employee table in the Database
+create table Employee(
+id int NOT NULL AUTO_INCREMENT,
+first_name varchar(20),
+last_name varchar(20) PRIMARY KEY(ID));
+
+2. Create a Spring Boot Project
+1. File Menu -> Spring Starter Project -> Name: employee-api, GroupID: com.bharath.springdatarest, ArtifactID: employee-api
+2. Dependencies -> Rest Repositories, MYSQL, JPA
+
+3. Create a Domain Model or JPA Entity
+
+package com.bharath.springdatarest.employee.entities
+@Entity
+public class Employee{
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+ 	private Long id;
+	private String firstName;
+	private String lastName;
+
+	//getters + setters 
+}
+
+4. Create a Employee Repository Interface
+
+package com.bharath.springdatarest.employee.repos
+
+public interface EmployeeRepository{
+
+}
+===================================================
