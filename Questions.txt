@@ -29,3 +29,21 @@ Spring 5:
 5. Support for JUnit 5
 6. Support for JSON Binding API
 5. Reactive Stack Framework or Reactive Programming Model 
+6. How to store the password in an encrypted format and decrypt it at runtime.
+7. add in application.properties server.context-path=/employee-api
+Use URL http://localhost:8080/employee-api/employees
+8. Google spring-boot-properties
+9. What if you use Spring 1.x and you want to migrate to Spring 2.x.
+Delete the M2 repository and do a project build which will download the jars again.
+findById().get()
+server.servlet.context-path = /employee-api
+10. Which dependency to add for using Spring Data Rest?
+Ans: spring-boot-starter-data-rest
+11. Which proprty to add in application.properties to configure the basepath for our application
+Ans: server.context-path or server.servlet.context-path
+12. Which two important components that we create while working with a Spring Data REST project?
+Ans: Entities and Repositories
+13. What is Cascading?
+And:
+14. Difference between @Controller, @RestController and @RepositoryRestController?
+Ans: @RestController = @Controller + @ResponseBody

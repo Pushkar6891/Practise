@@ -1,0 +1,13 @@
+1. PUT HTTP method will replace the entire object and not just some object's attribute.
+2. PATCH HTTP method to update the object partially
+3. Primary Key column should not be exposed directly when you try to retrieve it using POSTMAN as per the REST Standard.
+   It does not invoke the getter of the primary key when the object is serialized.
+4. Spring Data Rest exposes all associations as links.
+5. Cascading If you delete an object the object which is dependent on that will also get deleted.
+6. JSON Data coming in response. Java Entity into JSON is converted using JACKSON-Converter
+Jackson will invoke the getters in the order in which they are declared. So you will get the JSON response in the same order in which you have declared your getter method model entity
+@JsonPropertyOrder
+@JsonIgnore (to not show a property in json response)
+@JsonProperty (to see a different name for response Field)
+7. Spring Data REST uses all functionality of Spring Data.
+8. Expose our Domain Model as a RESTful API using Spring Data Rest by performing CRUD operations. Sometimes we need to implement logic we will implement it using a custom controllers.
