@@ -14,3 +14,15 @@ Angular   7 (2018)
 Angular   8 (Nov 2019)
 
 CLI Deep Dive TroubleShooting
+
+Angular 8 Topics
+1. 
+2.
+3.
+4.
+5.
+6.
+7.
+8.
+9.
+10.

@@ -556,32 +556,204 @@ filter by Name as well as zoneId
 Page<Event> findByNameAndZoneId(@Param("name") String name,@Param("zoneId") ZoneId zoneId);
 ===================================================
 Create Custom Controller Methods
+1. Start an Event
 Organizer --->(id) Start
-	<-----(exception)(event does not exist)
+	<-----(exception)(if event does not exist send an exception back)
 Adding a custom exception
-2. Participant should be able to checkin
-	<-----(exception)(unable to checkin)
+2. Participant should be able to checkin once the Event starts
+Participant ---> (id) Start
+	<-----(exception)(already checked in)
+===================================================		
 Steps to create a custom controller methods
 1. Create a Controller Class 
-2. Mark it with annotations: "@RepositoryRestController" and @RequestMapping(uri) or @Controller or @RestController
-3. Create Business Logic or methods inside Controller
-3. Mark these methods with annotations: @GetMapping, @PostMapping, @DeleteMapping
-4. Mapping parameters from Request to Java Method use annotations like "@PathVariable", "@PathParam", "@RequestBody"(take post or put body and map to java method), "@QueryParam", @Qualifier, @ResponseBody
+2. Mark it with annotations: "@RepositoryRestController" and "@RequestMapping(uri)" or "@Controller" or "@RestController"
+3. Create Business Logic or methods (implement methods) inside Controller
+3. Mark these methods with annotations : @GetMapping, @PostMapping, @DeleteMapping
+4. Mapping parameters from Request to Java Method use Spring MVC annotations like "@PathVariable", "@PathParam", "@RequestBody"(take post or put body and map to java method), "@QueryParam", @Qualifier, @ResponseBody
 ===================================================
 Create a class EventKickOffController
-package com.bharath.contollers
+package com.bharath.eventmanagement.contollers;
 @RepositoryRestController
 @RequestMapping("/events")
 public class EventKickOffController{
 
+	// Retrieve the event from the DB
+	@Autowired
+	EventRepository eventRepository;
+
 	// Method to start an event
 	@PostMapping("/start/{id}")
 	public ResponseEntity start(@PathVariable Long id){
-		// Retrieve the event from the DB
-		@Autowired
-		EventRepository eventRepository;
-		return null;
+		Event event = eventRepository.findById(id);
+		if(event==null){
+		throw new ResourceNotFoundException();
+		}
+
+		event.setStarted(true);
+		eventRepository.save(event);
+		return ResponseEntity.ok(event.getName() + " has started");
 	}
 
 }
+-- All methods will return a ResponseEntity
+===================================================
+Testing
+GET http://localhost:8080/eventmanagement-api/events/start/1
+Spring Data Rest Training 1 has started
+GET http://localhost:8080/eventmanagement-api/events/start/1000
+Not Found
+===================================================
+Create a CheckIn Controller, Implement the Logic for checkIn
+@RepositoryRestController
+@RequestMapping("/events")
+public class CheckInController{
+
+	@Autowired
+	private ParticipantRepository participantRepository;
+
+	@PostMapping("/checkIn/{id}")
+	public ResponseEntity<Participant> checkIn(@PathVariable Long id){
+		Participant participant = eventRepository.findById(id);
+
+		if(participant!=null){
+			if(participant.getCheckedIn()){
+				throw new AlreadyCheckedInException();
+			}
+			partipant.setCheckedIn(true);
+			participantRepository.save(participant);
+		}
+
+		
+		return null;
+	}
+}
+===================================================
+Converting JPA Entity/DB Object into HAL Object Response using PersistentEntityResourceAssembler
+
+===================================================
+Projections and Excerpts in Spring Data REST
+-- Projections and Excerpts allowed only for a Collection Resource
+-- Not all Clients need all data w.r.t the Domain Model at all times.
+-- Using Projections we can send/view/represent and expose only specific data of what client needs. and for a different client we can expose different data.
+Types of Projections:
+1. Partial Projection (returns partial data)
+2. Hidden Data Projection (fields marked with @JsonIgnore can also be exposed)
+3. Virtual Data Projection (combine existing entity and send in response)
+Excerpts : Projections which should be applied by default to a collection of resources
+===================================================
+Projections
+1. Partial Projection
+Steps:
+1. Create a Projection Interface
+2. Mark it with annotation : @Projection
+3. Add Getter Methods
+name, start_time and end_time should only be visible for every Event
+projection should be in same package as the entity
+
+@Projection(types={Event.class},name="partial")
+public interface PartialEventProjection{
+	String getName();
+	ZonedDateTime getStartTime();
+	ZonedDateTime getEndTime();
+}
+public class Event extends AbstractEntity{
+	
+}
+Testing Partial Projection
+GET	http://localhost:8080/eventmanagement-api/events
+GET	http://localhost:8080/eventmanagement-api/events?projection=partial
+
+2. Expose Hidden Data (Projection)
+
+@Projection(types={Event.class},name="partial")
+public interface PartialEventProjection{
+	String getName();
+	ZonedDateTime getStartTime();
+	ZonedDateTime getEndTime();
+	Instant getCreated();// (field marked created is marked with annotation @JsonIgnore but still we can show it in JSON Response)
+}
+GET	http://localhost:8080/eventmanagement-api/events?projection=partial
+
+3. Virtual ProjectionS
+@Projection(name="virtual", types={Venue.class})
+public interface StreetAddressProjection{
+	@Value("#{target.streetAddress} #{target.streetAddress2}")
+	String getCompleteStreetAddress();
+}
+Testing Virtual Projection
+GET http://localhost:8080/eventmanagement-api/venues
+GET http://localhost:8080/eventmanagement-api/venues?projection=virtual
+===================================================
+Excerpts
+Excerpts are Projections which should be applied by default to a collection of resources
+Use annotation
+@RepositoryRestResource(excerptProjection=PartialEvebtProjection.class)
+Testing Excerpts
+GET http://localhost:8080/eventmanagement-api/events
+===================================================
+HAL Browser
+Perform a POST
+===================================================
+Securing the Micro Services API
+1. Security (Authentication and Authorization(only certain users will be able to access, role = Admin(insert,update,delete), simple user (read))
+Event Management API ---> Event Management Mobile
+Event Management API ---> Event Management Web
+Authorize HTTP Methods
+2. Steps to Secure an Application
+1. Add a Maven dependency "spring-boot-starter-security" in pom.xml 
+2. Java based config file which extends WebSecurityConfigurerAdapter. (Rules are defined which our Restful API will follow,configure, users and roles)
+3. Method Level Security (@EnableGlobalMethodSecurity and @PreAuthorize("hasRole('ROLE_ADMIN')"))
+1. Adding Maven Dependency
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+2. Create a Configuration Class (Defining the security policy)
+@Configuration
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
+	configure()
+	configure()
+}
+Similar to defining roles in Tomcat.xml
+3. Add annotations @EnableGlobalMethodSecurity and @PreAuthorize("hasRole('ROLE_ADMIN')")
+===================================================
+Disable CSRF (Cross Site Request Forgery)
+csrf.disable()
+===================================================
+Testing the Security Application
+1. Postman 
+Create an Event using POST : 
+http://localhost:8080/eventmanagement-api/events
+RAW : JSON:
+401 Unauthorized
+Authorization:
+Type: Basic Authentication
+Username: Bharath
+Password: Bharath
+403 Forbidden
+Type: Basic Authentication
+Username: admin
+Password: admin
+===================================================
+1. Configure Java Method Level Security using Spring Security
+@Configuration
+@EnableGlobalMethodSecurity(
+  prePostEnabled = true, 
+  securedEnabled = true, 
+  jsr250Enabled = true)
+public class MethodSecurityConfig 
+  extends GlobalMethodSecurityConfiguration {
+}
+@Override
+@PreAuthorize("hasRole('ROLE_ADMIN')"
+void delete(int id);
+GET /events
+DELETE /events/1 => unauthorized
+Basic Authentication
+bharath
+bharath
+403 Forbidden
+Type: Basic Authentication
+Username: admin
+Password: admin
 ===================================================
